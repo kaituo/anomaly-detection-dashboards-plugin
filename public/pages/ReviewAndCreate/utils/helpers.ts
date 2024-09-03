@@ -25,7 +25,7 @@ import { CreateDetectorFormikValues } from '../../CreateDetectorSteps/models/int
 import { OPERATORS_QUERY_MAP } from '../../DefineDetector/utils/whereFilters';
 import { convertTimestampToNumber } from '../../../utils/utils';
 import { CUSTOM_AD_RESULT_INDEX_PREFIX } from '../../../../server/utils/constants';
-import { formikToImputationOption } from '../../ConfigureModel/utils/helpers';
+import { formikToImputationOption, formikToRules } from '../../ConfigureModel/utils/helpers';
 
 export function formikToDetector(values: CreateDetectorFormikValues): Detector {
   const detectionDateRange = values.historical
@@ -64,6 +64,7 @@ export function formikToDetector(values: CreateDetectorFormikValues): Detector {
     resultIndexMinSize: resultIndex && resultIndex.trim().length > 0 ? values.resultIndexMinSize : undefined,
     resultIndexTtl: resultIndex && resultIndex.trim().length > 0 ? values.resultIndexTtl : undefined,
     imputationOption: formikToImputationOption(values.imputationOption),
+    rules: formikToRules(values.suppressionRules),
   } as Detector;
 
   // Optionally add detection date range

@@ -34,6 +34,7 @@ import {
   getShingleSizeFromObject,
   imputationMethodToFormik,
   getCustomValueStrArray,
+  getSuppressionRulesArray,
 } from '../../ConfigureModel/utils/helpers';
 
 interface FeaturesProps {
@@ -256,6 +257,7 @@ export const Features = (props: FeaturesProps) => {
               imputationMethodStr,
               props.detector
             )}
+            suppressionRules={getSuppressionRulesArray(props.detector)}
           />
         </div>
       )}
