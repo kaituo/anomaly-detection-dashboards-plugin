@@ -16,9 +16,10 @@ import {
   MDSQueryParams,
 } from '../../../server/models/types';
 import sortBy from 'lodash/sortBy';
-import { DetectorListItem } from '../../models/interfaces';
+import { DetectorListItem, ForecasterListItem } from '../../models/interfaces';
 import {
   DETECTORS_QUERY_PARAMS,
+  FORECASTER_STATE,
   SORT_DIRECTION,
 } from '../../../server/utils/constants';
 import {
@@ -26,6 +27,8 @@ import {
   ALL_DETECTOR_STATES,
   MAX_DETECTORS,
   DEFAULT_QUERY_PARAMS,
+  MAX_FORECASTER,
+  EMPTY_FORECASTER_STATES,
 } from './constants';
 import { DETECTOR_STATE } from '../../../server/utils/constants';
 import { timeFormatter } from '@elastic/charts';
@@ -100,6 +103,7 @@ export function getVisibleOptions(
     items.length > 0
       ? groupIndicesOrAliasesByCluster(items, localClusterName, label)
       : [{ label, options: items }];
+  console.log('getVisibleOptions', indices, aliases, localClusterName);
 
   const visibleIndices = mapToVisibleOptions(indices, 'index');
   const visibleAliases = mapToVisibleOptions(aliases, 'alias');
@@ -156,6 +160,34 @@ export const filterAndSortDetectors = (
   return sorted;
 };
 
+export const filterAndSortForecasters = (
+  forecasters: ForecasterListItem[],
+  search: string,
+  selectedIndices: string[],
+  selectedForecasterStates: FORECASTER_STATE[]
+) => {
+  console.log('filterAndSortForecasters', search, selectedIndices, selectedForecasterStates);
+  let filteredBySearch =
+    search == ''
+      ? forecasters
+      : forecasters.filter((forecaster) => forecaster.name.includes(search));
+  let filteredBySearchAndState =
+    selectedForecasterStates == EMPTY_FORECASTER_STATES
+      ? filteredBySearch
+      : filteredBySearch.filter((forecaster) =>
+          selectedForecasterStates.includes(forecaster.curState)
+        );
+  console.log('filteredBySearchAndState', filteredBySearchAndState, selectedIndices);
+  let filteredBySearchAndStateAndIndex =
+    selectedIndices == ALL_INDICES
+      ? filteredBySearchAndState
+      : filteredBySearchAndState.filter((forecaster) =>
+          forecaster.indices.some((index) => selectedIndices.includes(index))
+        );
+  console.log('filteredBySearchAndStateAndIndex', filteredBySearchAndStateAndIndex);
+  return filteredBySearchAndStateAndIndex;
+};
+
 export const getDetectorsToDisplay = (
   detectors: DetectorListItem[],
   page: number,
@@ -185,6 +217,18 @@ export const getAllDetectorsQueryParamsWithDataSourceId = (
   size: MAX_DETECTORS,
   sortDirection: SORT_DIRECTION.ASC,
   sortField: 'name',
+  dataSourceId,
+});
+
+export const getAllForecastersQueryParamsWithDataSourceId = (
+  dataSourceId: string = ''
+) => ({
+  from: 0,
+  search: '',
+  indices: '',
+  size: MAX_FORECASTER,
+  sortDirection: SORT_DIRECTION.ASC,
+  sortFieldId: 'name',
   dataSourceId,
 });
 
@@ -271,3 +315,9 @@ export const isDataSourceCompatible = (
 export const getLocalCluster = (clusters: ClusterInfo[]): ClusterInfo[] => {
   return clusters.filter((cluster) => cluster.localCluster === true);
 };
+
+export const getClusterInfoLabel = (clusterInfo: ClusterInfo) =>
+  `${clusterInfo.name} ${clusterInfo.localCluster ? '(Local)' : '(Remote)'}`;
+
+export const getClusterLabel = (localCluster: boolean, clusterName: string) =>
+  localCluster ? `${clusterName} (Local)` : `${clusterName} (Remote)`;

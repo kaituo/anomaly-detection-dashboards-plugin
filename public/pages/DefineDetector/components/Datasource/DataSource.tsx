@@ -46,7 +46,6 @@ import { INITIAL_MODEL_CONFIGURATION_VALUES } from '../../../ConfigureModel/util
 import { FILTER_TYPES } from '../../../../models/interfaces';
 import { useLocation } from 'react-router-dom';
 import _ from 'lodash';
-import { cleanString } from '../../../../../../../src/plugins/vis_type_vega/public/expressions/helpers';
 import { L } from '../../../../../../../src/plugins/maps_legacy/public/lazy_load_bundle/lazy';
 
 interface DataSourceProps {
